@@ -105,25 +105,3 @@ models["Holt-Winters Seasonal"] = model_hw
 forecasts["Holt-Winters Seasonal"] = hw_forecast
 st.line_chart(hw_forecast)
 
-# ARIMA
-st.write("## ARIMA")
-st.write("""
-ARIMA (AutoRegressive Integrated Moving Average) is a popular model for time series forecasting.
-It combines autoregression, differencing (to achieve stationarity), and moving average components.
-We fit an ARIMA model to the training data and forecast the next data points.
-""")
-model_arima = ARIMA(train, order=(5,1,0)).fit()
-arima_forecast = model_arima.forecast(steps=len(test))
-models["ARIMA"] = model_arima
-forecasts["ARIMA"] = arima_forecast
-st.line_chart(arima_forecast)
-
-# SARIMA
-st.write("## SARIMA")
-st.write("""
-SARIMA (Seasonal ARIMA) extends ARIMA to handle seasonality in the data.
-It includes seasonal components in the autoregression, differencing, and moving average processes.
-We fit a SARIMA model to the training data and forecast the next data points.
-""")
-model_sarima = SARIMAX(train, order=(1,1,1), seasonal_order=(1,1,1,12)).fit()
-sarima_forecast = model_sarima.fore
