@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from statsmodels.tsa.stattools import adfuller, ljungbox
+from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.stats.diagnostic import acorr_ljungbox
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error
 
@@ -125,54 +126,4 @@ It includes seasonal components in the autoregression, differencing, and moving 
 We fit a SARIMA model to the training data and forecast the next data points.
 """)
 model_sarima = SARIMAX(train, order=(1,1,1), seasonal_order=(1,1,1,12)).fit()
-sarima_forecast = model_sarima.forecast(steps=len(test))
-models["SARIMA"] = model_sarima
-forecasts["SARIMA"] = sarima_forecast
-st.line_chart(sarima_forecast)
-
-# Prophet
-st.write("## Prophet")
-st.write("""
-Prophet is a forecasting tool developed by Facebook, designed for forecasting time series data that exhibit seasonality.
-It is robust to missing data and shifts in the trend, making it easy to handle anomalies.
-We fit a Prophet model to the data and forecast the next data points.
-""")
-df = train.reset_index().rename(columns={'index': 'ds', 0: 'y'})
-model_prophet = Prophet()
-model_prophet.fit(df)
-future = model_prophet.make_future_dataframe(periods=len(test))
-forecast = model_prophet.predict(future)
-prophet_forecast = forecast['yhat'].values[-len(test):]
-models["Prophet"] = model_prophet
-forecasts["Prophet"] = prophet_forecast
-fig = model_prophet.plot(forecast)
-st.pyplot(fig)
-
-# Compare Models
-st.write("## Model Comparison")
-comparison = pd.DataFrame(columns=["Model", "MAE"])
-for model_name, forecast in forecasts.items():
-    mae = calculate_mae(test, forecast)
-    comparison = comparison.append({"Model": model_name, "MAE": mae}, ignore_index=True)
-
-st.write(comparison)
-
-# Determine Winner
-winner_model_name = comparison.loc[comparison['MAE'].idxmin()]["Model"]
-st.write(f"### Winner Model: {winner_model_name}")
-
-# Forecast using the Winner Model
-if winner_model_name == "Prophet":
-    model = models[winner_model_name]
-    future = model.make_future_dataframe(periods=60)
-    forecast = model.predict(future)
-    forecast_values = forecast['yhat'].values[-60:]
-else:
-    model = models[winner_model_name]
-    forecast_values = model.forecast(steps=60)
-
-st.write("### Forecast for the next 2 months using the Winner Model")
-st.line_chart(forecast_values)
-
-if __name__ == '__main__':
-    st.write('Time Series Forecasting App is running...')
+sarima_forecast = model_sarima.fore
